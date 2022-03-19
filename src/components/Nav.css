@@ -1,0 +1,19 @@
+.vl {
+    text-decoration: none;
+    color: #d4b547;
+}
+
+.vl:hover {
+    text-decoration: none;
+    color: #d4b547;
+}
+
+li:hover {
+    color: rgba(0, 0, 0, 1.0);
+    font-weight: bold;
+}
+
+button:hover {
+    color: rgba(0, 0, 0, 1.0);
+    font-weight: bold;
+}

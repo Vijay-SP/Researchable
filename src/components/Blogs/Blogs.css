@@ -1,0 +1,40 @@
+/* global */
+body {
+  overflow-x: hidden;
+}
+
+/* blog section */
+
+.title {
+  font-family: "Roboto", sans-serif;
+  border-bottom: 3px solid #201f1e;
+}
+
+/* individual card */
+
+.card {
+  color: #8b92a9;
+
+  border: 0;
+  border-radius: 6px;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+.small {
+  color: #969595;
+  font-weight: 400;
+  font-family: Rubik, sans-serif;
+  font-size: 14px;
+}
+
+.content {
+  font-size: 15px;
+  line-height: 23px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

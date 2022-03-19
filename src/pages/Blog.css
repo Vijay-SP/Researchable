@@ -1,0 +1,53 @@
+.author-img {
+  border-radius: 63% 37% 30% 70%/50% 45% 55% 50%;
+}
+
+.author::before {
+  content: "";
+  border-left: 4px solid #14b8a6;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 20px;
+}
+
+.button-author {
+  border: 2px solid #14b8a6;
+  padding: 0.7rem 1.25rem;
+  border-radius: 2rem;
+  text-decoration: none;
+  color: #14b8a6;
+  font-weight: bold;
+  background: linear-gradient(to right, #14b8a6 50%, #fff 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  transition: all 0.5s ease;
+}
+
+.button-author:hover {
+  color: #fff;
+  background-position: left bottom;
+}
+
+.popular-blog-title {
+  line-height: 26px;
+  font-size: 1.1rem;
+  color: #222;
+  font-weight: bold;
+  background-image: linear-gradient(to right,
+      #fee198 50%,
+      rgba(255, 255, 255, 0) 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  transition: all 0.5s ease;
+}
+
+.popular-blog-title:hover {
+  cursor: pointer;
+  background-position: left bottom;
+}
+
+.popular-blog-comment {
+  font-size: 14px;
+  line-height: 11px;
+}

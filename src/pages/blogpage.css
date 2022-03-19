@@ -1,0 +1,72 @@
+/*--------------------------------------------------------------
+# Hero Section
+--------------------------------------------------------------*/
+#zero {
+  width: 100%;
+  background: url("../images/blog.jpg") top left;
+  background-size: cover;
+  position: relative;
+}
+
+#zero:before {
+  content: "";
+  background: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+#zero .container {
+  position: relative;
+}
+
+#zero h1 {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  color: #222222;
+  font-family: "Poppins", sans-serif;
+}
+
+#zero h1 span {
+  color: #14b8a6;
+}
+
+#zero h2 {
+  color: #555555;
+  margin: 5px 0 30px 0;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+@media (min-width: 1024px) {
+  #zero {
+    background-attachment: fixed;
+  }
+}
+
+@media (max-width: 768px) {
+  #zero {
+    height: 100vh;
+  }
+
+  #zero h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  #zero h2 {
+    font-size: 18px;
+    line-height: 24px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-height: 500px) {
+  #zero {
+    height: 120vh;
+  }
+}
