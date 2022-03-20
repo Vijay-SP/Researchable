@@ -17,20 +17,25 @@ import { Line } from 'rc-progress';
 
 const UserProfile = () => {
   const { currentUser } = useAuth();
-  const [showBlogForm, setShowBlogForm] = useState(false);
+  const [showcollabForm, setShowcollabForm] = useState(false);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
-  const [userBlogs, setUserBlogs] = useState([]);
+  const [usercollabs, setUsercollabs] = useState([]);
   const [userQuotes, setUserQuotes] = useState([]);
   const [Mentor, setMentor] = useState([]);
   const [showProgress, setShowProgress] = useState(false);
   const [done, setDone] = useState(0);
   const history = useHistory();
 
-  const [blogContent, setBlogContent] = useState('');
+  const [collabContent, setcollabContent] = useState('');
+  const [collabHelpContent, setcollabHelpContent] = useState('');
   const [quoteContent, setQuoteContent] = useState('');
+  const collabTitle = useRef();
+  const collabCategories = useRef();
+  const collabSocialLink = useRef();
+  const status = useRef();
   const [blogImg, setBlogImg] = useState();
   const blogTitle = useRef();
   const blogCategories = useRef();
@@ -43,7 +48,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (currentUser && currentUser.userId) {
-      db.collection('Blogs')
+      db.collection('Collabs')
         .get()
         .then((snapshot) => {
           const logs = [];
@@ -52,18 +57,19 @@ const UserProfile = () => {
               const data = {
                 id: doc.id,
                 title: doc.data().title,
-                image: doc.data().images[0],
                 categories: doc.data().categories,
                 description: doc.data().description,
+                help: doc.data().help,
                 authorName: doc.data().authorName,
                 isFeatured: doc.data().isFeatured,
                 isApproved: doc.data().isApproved,
                 updated_on: doc.data().updated_on,
+                userId: doc.data().userId
               };
               logs.push(data);
             }
           });
-          setUserBlogs(logs);
+          setUsercollabs(logs);
         });
     }
   }, [currentUser]);
@@ -121,6 +127,7 @@ const UserProfile = () => {
   }, [currentUser]);
 
 
+
   const addQuote = async (e) => {
     e.preventDefault();
     setShowProgress(true);
@@ -153,23 +160,27 @@ const UserProfile = () => {
     }
   };
 
-  const addMentor = async (e) => {
+  const addcollab = async (e) => {
     e.preventDefault();
     setShowProgress(true);
     setDone(55);
     try {
       const data = {
-        mentorName: currentUser.username,
+        authorName: currentUser.username,
         isFeatured: false,
         isApproved: false,
-        qualification: ,
-        description: quoteContent,
+        title: collabTitle.current.value,
+        description: collabContent,
+        help: collabHelpContent,
+        categories: collabCategories.current.value.split(','),
+        social_link: collabSocialLink.current.value,
         updated_on: new Date().toString(),
         userId: currentUser.userId,
+        status: status.current.value,
       };
-      await db.collection('Mentors').add(data);
+      await db.collection('Collabs').add(data);
       setDone(100);
-      setUserQuotes([data, ...Mentor]);
+      setUsercollabs([data, ...usercollabs]);
       setSuccess(true);
       setError(false);
       setTimeout(() => {
@@ -186,82 +197,10 @@ const UserProfile = () => {
     }
   };
 
-  const addBlog = async (e) => {
-    e.preventDefault();
-    setShowProgress(true);
-    setDone(55);
-    try {
-      if (!blogImg) {
-        await db.collection('Blogs').add({
-          authorName: currentUser.username,
-          isFeatured: false,
-          isApproved: false,
-          title: blogTitle.current.value,
-          description: blogContent,
-          categories: blogCategories.current.value.split(','),
-          social_link: blogSocialLink.current.value,
-          rating: [{ 0: 0 }, { 0: 0 }, { 0: 0 }, { 0: 0 }, { 0: 0 }],
-          updated_on: new Date().toString(),
-          userId: currentUser.userId,
-        });
-        setDone(100);
-        setSuccess(true);
-        setError(false);
-        setTimeout(() => {
-          setSuccess(false);
-          setShowProgress(false);
-          setDone(0);
-        }, 3000);
-      } else {
-        const data = new FormData();
-        data.append('file', blogImg);
-        data.append('upload_preset', 'collab_req');
-        data.append('cloud_name', 'cloudyyyy');
-        await fetch(
-          'https://api.cloudinary.com/v1_1/cloudyyyy/image/upload',
-          {
-            method: 'post',
-            body: data,
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            db.collection('Blogs').add({
-              authorName: currentUser.username,
-              isFeatured: false,
-              isApproved: false,
-              title: blogTitle.current.value,
-              description: blogContent,
-              categories: blogCategories.current.value.split(','),
-              social_link: blogSocialLink.current.value,
-              images: [data.url],
-              rating: [{ 0: 0 }, { 0: 0 }, { 0: 0 }, { 0: 0 }, { 0: 0 }],
-              updated_on: new Date().toString(),
-              userId: currentUser.userId,
-            });
-          });
-        setDone(100);
-        setSuccess(true);
-        setError(false);
-        setTimeout(() => {
-          setSuccess(false);
-          setShowProgress(false);
-          setDone(0);
-        }, 3000);
-      }
-    } catch (error) {
-      setError(true);
-      setSuccess(false);
-      setTimeout(() => {
-        setError(false);
-      }, 3000);
-    }
-  };
 
 
-
-  const removeBlog = (id) => {
-    setUserBlogs(userBlogs.filter((blog) => blog.id !== id));
+  const removecollab = (id) => {
+    setUsercollabs(usercollabs.filter((collab) => collab.id !== id));
   };
 
 
@@ -298,8 +237,14 @@ const UserProfile = () => {
                       {currentUser.email}
                     </span>{' '}
                     <br />
-                    <Link to={`/edituser/${currentUser.userId}`} className='text-decoration-none'> Edit Profile </Link><br />
-                    <Link to={`/user/${currentUser.userId}`} className='text-decoration-none'> View Profile </Link>
+                    <button
+                      className="btn btn-info"
+                    ><Link to={`/edituser/${currentUser.userId}`} className='text-decoration-none'> <b>Edit Profile</b> </Link></button>
+                    <br /><br />
+                    <button
+                      className="btn btn-warning"
+                    >
+                      <Link to={`/user/${currentUser.userId}`} className='text-decoration-none'><b> View Profile</b> </Link></button>
                     <div className="container d-flex  justify-content-center mt-4 px-4">
                       <div className="stats">
                         <h6
@@ -315,17 +260,17 @@ const UserProfile = () => {
                               fontSize={20}
                               color="green"
                               onClick={() => {
-                                if (showBlogForm) {
-                                  setShowBlogForm(false);
+                                if (showcollabForm) {
+                                  setShowcollabForm(false);
                                 } else {
-                                  setShowBlogForm(true);
+                                  setShowcollabForm(true);
                                   setShowQuoteForm(false);
                                 }
                               }}
                             />
                           </div>
                         </h6>{' '}
-                        <span className="fs-5">{userBlogs.length}</span>
+                        <span className="fs-5">{usercollabs.length}</span>
                       </div>
 
 
@@ -344,19 +289,19 @@ const UserProfile = () => {
                               fontSize={20}
                               color="green"
                               onClick={() => {
-                                if (showBlogForm) {
-                                  setShowBlogForm(false);
+                                if (showMentorForm) {
+                                  setShowMentorForm(false);
                                 } else {
-                                  setShowBlogForm(true);
-                                  setShowQuoteForm(false);
+                                  setShowMentorForm(true);
+                                  setShowMentorForm(false);
                                 }
                               }}
                             />
                           </div>
                         </h6>{' '}
-                        
+
                       </div>
-                    
+
 
 
                       <div
@@ -380,7 +325,7 @@ const UserProfile = () => {
                                   setShowQuoteForm(false);
                                 } else {
                                   setShowQuoteForm(true);
-                                  setShowBlogForm(false);
+                                  setShowcollabForm(false);
                                 }
                               }}
                             />
@@ -421,11 +366,11 @@ const UserProfile = () => {
 
               </div>
               <div>
-                {showBlogForm && (
-                  <form onSubmit={addBlog}>
+                {showcollabForm && (
+                  <form onSubmit={addcollab}>
                     {success && (
                       <div class="alert alert-success" role="alert">
-                        Success! , your shayri will be posted once the admin
+                        Success! , your collab request will be posted once the admin
                         approves it
                       </div>
                     )}
@@ -444,21 +389,6 @@ const UserProfile = () => {
                         <span>{done}%</span>
                       </div>
                     )}
-                    <div>
-                      <label for="exampleInputEmail1">image:</label>
-                      <input
-                        className="p-3"
-                        type="file"
-                        onChange={(e) => setProof(e.target.files[0])}
-                      />{' '}
-                      {proof && (
-                        <img
-                          style={{ height: '120px' }}
-                          src={URL.createObjectURL(proof)}
-                          alt="error"
-                        />
-                      )}
-                    </div>
                     <div class="form-group">
                       <br />
                       <input
@@ -467,7 +397,7 @@ const UserProfile = () => {
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
                         placeholder="title"
-                        ref={blogTitle}
+                        ref={collabTitle}
                         style={{
                           borderStyle: 'none',
                           borderRadius: '0px',
@@ -483,7 +413,7 @@ const UserProfile = () => {
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
                         placeholder="categories"
-                        ref={blogCategories}
+                        ref={collabCategories}
                         style={{
                           borderStyle: 'none',
                           borderRadius: '0px',
@@ -499,7 +429,24 @@ const UserProfile = () => {
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
                         placeholder="social media links"
-                        ref={blogSocialLink}
+                        ref={collabSocialLink}
+                        style={{
+                          borderStyle: 'none',
+                          borderRadius: '0px',
+                          borderBottom: '1px solid grey',
+                        }}
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <br />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="exampleInputEmail1"
+                        aria-describedby="emailHelp"
+                        placeholder="enter the status"
+                        ref={status}
                         style={{
                           borderStyle: 'none',
                           borderRadius: '0px',
@@ -513,10 +460,23 @@ const UserProfile = () => {
                         type="text"
                         class="form-control"
                         id="exampleInputPassword1"
-                        placeholder="blog"
+                        placeholder="Please provide the few portion of your research paper"
                         style={{ height: '207px' }}
-                        value={blogContent}
-                        onChange={(value) => setBlogContent(value)}
+                        value={collabContent}
+                        onChange={(value) => setcollabContent(value)}
+                      />
+                    </div>
+                    <br />
+                    <div class="form-group">
+                      <br />
+                      <ReactQuill
+                        type="text"
+                        class="form-control"
+                        id="exampleInputPassword1"
+                        placeholder="Mention the help you need / guidance you need"
+                        style={{ height: '207px' }}
+                        value={collabHelpContent}
+                        onChange={(value) => setcollabHelpContent(value)}
                       />
                     </div>
 
@@ -529,9 +489,9 @@ const UserProfile = () => {
                     </button>
                   </form>
                 )}
-                
+
                 {showMentorForm && (
-                  <form onSubmit={addMentor}>
+                  <form>
                     {success && (
                       <div class="alert alert-success" role="alert">
                         Success! , your will be listed as mentor once the admin
@@ -553,7 +513,7 @@ const UserProfile = () => {
                         <span>{done}%</span>
                       </div>
                     )}
-                    
+
                     <div class="form-group">
                       <br />
                       <input
@@ -575,9 +535,9 @@ const UserProfile = () => {
                       <input
                         className="p-3"
                         type="file"
-                        onChange={(e) => setBlogImg(e.target.files[0])}
+                        onChange={(e) => setProof(e.target.files[0])}
                       />{' '}
-                      {blogImg && (
+                      {proof && (
                         <img
                           style={{ height: '120px' }}
                           src={URL.createObjectURL(blogImg)}
@@ -619,7 +579,7 @@ const UserProfile = () => {
                     </div>
                     <div class="form-group">
                       <br />
-                      <ReactQuill
+                      {/* <ReactQuill
                         type="text"
                         class="form-control"
                         id="exampleInputPassword1"
@@ -627,7 +587,7 @@ const UserProfile = () => {
                         style={{ height: '207px' }}
                         value={blogContent}
                         onChange={(value) => setBlogContent(value)}
-                      />
+                      /> */}
                     </div>
 
                     <button
@@ -694,23 +654,24 @@ const UserProfile = () => {
             <h2 style={{ fontFamily: 'Dancing Script' }}>My Collab Req</h2>
           </div>
           <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
-            {userBlogs.length > 0 ? (
-              userBlogs.map(
-                ({ id, image, description, title, authorName, isApproved, isFeatured, updated_on }) => {
+            {usercollabs.length > 0 ? (
+              usercollabs.map(
+                ({ id, description, img, title, authorName, isApproved, isFeatured, updated_on, userId }) => {
                   return (
                     <Card
-                      img={image}
                       content={description}
                       title={title}
+                      img={img}
                       author={authorName}
                       date={updated_on}
                       isApproved={isApproved}
                       isFeatured={isFeatured}
-                      url={`/blogs/${id}`}
+                      url={`/collabsuser/${id}`}
                       deleteOption={true}
-                      collection={'Blogs'}
+                      userId={userId}
+                      collection={'collabs'}
                       id={id}
-                      removeData={(id) => removeBlog(id)}
+                      removeData={(id) => removecollab(id)}
                     />
                   );
                 }
@@ -737,6 +698,7 @@ const UserProfile = () => {
                   authorName,
                   isApproved,
                   isFeatured,
+                  userId
                 }) => {
                   return (
                     <Card
@@ -751,6 +713,7 @@ const UserProfile = () => {
                       isFeatured={isFeatured}
                       deleteOption={true}
                       collection={'Quotes'}
+                      userId={userId}
                       removeData={(id) => removeQuote(id)}
                     />
                   );

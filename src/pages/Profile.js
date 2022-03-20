@@ -11,43 +11,16 @@ import Navbar from '../components/Navbar';
 
 const Profile = () => {
     const { id } = useParams();
-    const [userShayris, setUserShayris] = useState([]);
     const [userBlogs, setUserBlogs] = useState([]);
-    const [userKavitas, setUserKavitas] = useState([]);
     const [userQuotes, setUserQuotes] = useState([]);
     const [userData, setUserdata] = useState([]);
 
 
-    useEffect(() => {
-        if (id) {
-            db.collection('Shayris')
-                .get()
-                .then((snapshot) => {
-                    const usershayris = [];
-                    snapshot.forEach((doc) => {
-                        if (doc.data().userId === id) {
-                            const data = {
-                                id: doc.id,
-                                title: doc.data().title,
-                                description: doc.data().description,
-                                authorName: doc.data().authorName,
-                                isFeatured: doc.data().isFeatured,
-                                updated_on: doc.data().updated_on,
-                                isApproved: doc.data().isApproved,
-                                userId: doc.data().userId,
-                            };
-                            usershayris.push(data);
-                        }
-                    });
-                    setUserShayris(usershayris);
-                    console.log(usershayris);
-                });
-        }
-    }, [id]);
+
 
     useEffect(() => {
         if (id) {
-            db.collection('Blogs')
+            db.collection('Collabs')
                 .get()
                 .then((snapshot) => {
                     const logs = [];
@@ -56,7 +29,6 @@ const Profile = () => {
                             const data = {
                                 id: doc.id,
                                 title: doc.data().title,
-                                image: doc.data().images[0],
                                 categories: doc.data().categories,
                                 description: doc.data().description,
                                 authorName: doc.data().authorName,
@@ -73,31 +45,6 @@ const Profile = () => {
         }
     }, [id]);
 
-    useEffect(() => {
-        if (id) {
-            db.collection('Poems')
-                .get()
-                .then((snapshot) => {
-                    const kavitas = [];
-                    snapshot.forEach((doc) => {
-                        if (doc.data().userId === id) {
-                            const data = {
-                                id: doc.id,
-                                title: doc.data().title,
-                                description: doc.data().description,
-                                authorName: doc.data().authorName,
-                                isFeatured: doc.data().isFeatured,
-                                updated_on: doc.data().updated_on,
-                                isApproved: doc.data().isApproved,
-                                userId: doc.data().userId,
-                            };
-                            kavitas.push(data);
-                        }
-                    });
-                    setUserKavitas(kavitas);
-                });
-        }
-    }, [id]);
 
     useEffect(() => {
         if (id) {
@@ -173,11 +120,12 @@ const Profile = () => {
                 </div>
                 <div className="pt-5">
                     <div className="container d-flex justify-content-center p-4">
-                        <h2 style={{ fontFamily: 'Dancing Script' }}>User's Shayris</h2>
+
+                        <h2 style={{ fontFamily: 'Dancing Script' }}>Collab Reqs</h2>
                     </div>
                     <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
-                        {userShayris.length > 0 ? (
-                            userShayris.map(
+                        {userBlogs.length > 0 ? (
+                            userBlogs.map(
                                 ({ id, description, title, authorName, isApproved, isFeatured, updated_on, userId }) => {
                                     return (
 
@@ -188,39 +136,7 @@ const Profile = () => {
                                             date={updated_on}
                                             isApproved={isApproved}
                                             isFeatured={isFeatured}
-                                            url={`/shayaris/${id}`}
-                                            collection={'Shayaris'}
-                                            id={id}
-                                            userId={userId}
-                                        />
-                                    );
-                                }
-                            )
-                        ) : (
-                            <div className="d-flex justify-content-center">No posts yet</div>
-                        )}
-                    </div>
-                </div>
-                <div className="pt-5">
-                    <div className="container d-flex justify-content-center p-4">
-
-                        <h2 style={{ fontFamily: 'Dancing Script' }}>User's Blogs</h2>
-                    </div>
-                    <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
-                        {userBlogs.length > 0 ? (
-                            userBlogs.map(
-                                ({ id, image, description, title, authorName, isApproved, isFeatured, updated_on, userId }) => {
-                                    return (
-
-                                        <Card
-                                            img={image}
-                                            content={description}
-                                            title={title}
-                                            author={authorName}
-                                            date={updated_on}
-                                            isApproved={isApproved}
-                                            isFeatured={isFeatured}
-                                            url={`/blogs/${id}`}
+                                            url={`/collabs/${id}`}
                                             collection={'Blogs'}
                                             id={id}
                                             userId={userId}
@@ -233,39 +149,10 @@ const Profile = () => {
                         )}
                     </div>
                 </div>
+
                 <div className="pt-5">
                     <div className="container d-flex justify-content-center p-4">
-                        <h2 style={{ fontFamily: 'Dancing Script' }}>User's Kavitas</h2>
-                    </div>
-                    <div className=" d-flex flex-direction-row flex-wrap justify-content-center my-3">
-                        {userKavitas.length > 0 ? (
-                            userKavitas.map(
-                                ({ img, description, title, updated_on, id, isApproved, isFeatured, authorName, userId }) => {
-                                    return (
-                                        <Card
-                                            img={img}
-                                            content={description}
-                                            title={title}
-                                            date={updated_on}
-                                            isApproved={isApproved}
-                                            isFeatured={isFeatured}
-                                            url={`/kavitas/${id}`}
-                                            author={authorName}
-                                            collection={'Poems'}
-                                            id={id}
-                                            userId={userId}
-                                        />
-                                    );
-                                }
-                            )
-                        ) : (
-                            <div className="d-flex justify-content-center">No posts yet</div>
-                        )}
-                    </div>
-                </div>
-                <div className="pt-5">
-                    <div className="container d-flex justify-content-center p-4">
-                        <h2 style={{ fontFamily: 'Dancing Script' }}>User's Quotes</h2>
+                        <h2 style={{ fontFamily: 'Dancing Script' }}>User's Research Papers</h2>
                     </div>
                     <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
                         {userQuotes.length > 0 ? (

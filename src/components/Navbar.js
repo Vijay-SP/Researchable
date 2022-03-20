@@ -57,7 +57,7 @@ const Navbar = ({ backButton }) => {
               <li class="navbar-brand">
                 <Link
                   class="nav-link"
-                  to="/blogs"
+                  to="/collabs"
                   smooth={true}
                   duration={500}
                 >
