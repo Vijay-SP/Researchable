@@ -99,7 +99,7 @@ const HomePage = () => {
             </h2>
 
             <div
-              className="d-flex flex-column align-items-center justify-content-center py-5"
+              className="d-flex flex-row align-items-center justify-content-center py-5"
               style={{ width: '100vw', backgroundColor: '#EFefef' }}
             >
               {papers.length > 0 ? (
@@ -132,18 +132,6 @@ const HomePage = () => {
           className="d-flex flex-column align-items-center justify-content-center py-5"
           style={{ width: '100vw', backgroundColor: '#EFefef' }}
         >
-          {/* <h2
-            className="pt-3 text-dark text-capitalize font-weight-bold fs-1 p-0 m-0 "
-            style={{
-              paddingLeft: '20px',
-              fontFamily: 'Dancing Script',
-              borderBottom: '2px solid #222',
-              paddingBottom: '1px',
-            }}
-          >
-            Featured quotes
-          </h2> */}
-
           <div
             className="container d-flex flex-direction-row flex-wrap justify-content-center my-5"
             style={{ width: '100vw' }}

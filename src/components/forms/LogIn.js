@@ -92,7 +92,7 @@ const LogIn = () => {
                   </div>
 
                   <Link class="d-block text-center mt-2 small" to="/signup">
-                    Dont have an account? Register
+                    Don't have an account? Register
                   </Link>
 
                   <Link
