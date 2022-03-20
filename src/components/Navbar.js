@@ -55,6 +55,11 @@ const Navbar = ({ backButton }) => {
                 </Link>
               </li>
               <li class="navbar-brand">
+                <Link class="nav-link" to="/researchpapers">
+                  Conference
+                </Link>
+              </li>
+              <li class="navbar-brand">
                 <Link
                   class="nav-link"
                   to="/collabs"

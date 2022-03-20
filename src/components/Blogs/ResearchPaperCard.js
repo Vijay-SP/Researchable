@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { db } from '../../firebase';
 import { Trash } from 'react-bootstrap-icons';
 
-const Card = ({
+const ResearchPaperCard = ({
   img,
   content,
   title,
@@ -18,7 +18,8 @@ const Card = ({
   removeData,
   isFeatured,
   userId,
-  isMentor
+  isMentor,
+  approvalRequest
 }) => {
   const deletePost = async () => {
     try {
@@ -67,9 +68,9 @@ const Card = ({
           <p className="small pb-0 pt-1 m-0" style={{ fontWeight: '700' }}>
             <Link to={`/user/${userId}`}>{author}</Link>
           </p>
-          <Link to={url} className="py-0 text-decoration-none">
-            Actions
-          </Link>
+          <a href={url} target="_blank" rel="noopener noreferrer"className="py-0 text-decoration-none">
+            {approvalRequest ? "Actions" : "View Paper"}
+          </a>
         </div>
         <div className="d-flex justify-content-between">
           {!isApproved && <p className="text-danger"> Awaiting approval</p>}
@@ -88,4 +89,4 @@ const Card = ({
   );
 };
 
-export default Card;
+export default ResearchPaperCard;

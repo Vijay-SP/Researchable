@@ -47,7 +47,9 @@ const CollabApprovals = () => {
 
   const handleNotApprove = async () => {
     try {
-      await db.collection('Collabs').doc(id).delete();
+      await db.collection('Collabs').doc(id).update({
+        isApproved: false,
+      });
       setSuccess(true);
       setError(false);
       setTimeout(() => {

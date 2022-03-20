@@ -14,16 +14,17 @@ import { Link } from 'react-router-dom';
 import { PlusCircle } from 'react-bootstrap-icons';
 import Footer from '../components/Footer';
 import { Line } from 'rc-progress';
+import ResearchPaperCard from '../components/Blogs/ResearchPaperCard';
 
 const UserProfile = () => {
   const { currentUser } = useAuth();
   const [showcollabForm, setShowcollabForm] = useState(false);
-  const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [showPaperForm, setShowPaperForm] = useState(false);
   const [showMentorForm, setShowMentorForm] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [usercollabs, setUsercollabs] = useState([]);
-  const [userQuotes, setUserQuotes] = useState([]);
+  const [userPapers, setUserPapers] = useState([]);
   const [Mentor, setMentor] = useState([]);
   const [showProgress, setShowProgress] = useState(false);
   const [done, setDone] = useState(0);
@@ -36,14 +37,14 @@ const UserProfile = () => {
   const collabCategories = useRef();
   const collabSocialLink = useRef();
   const status = useRef();
-  const [blogImg, setBlogImg] = useState();
-  const blogTitle = useRef();
-  const blogCategories = useRef();
   const blogSocialLink = useRef();
   const [proof, setProof] = useState();
   const MQualification = useRef();
   const MExpertise = useRef();
 
+  const PaperTitle = useRef();
+  const [paperAbstract, setPaperAbstract] = useState('');
+  const [paperImg, setPaperImg] = useState();
 
 
   useEffect(() => {
@@ -56,16 +57,7 @@ const UserProfile = () => {
             if (doc.data().userId === currentUser.userId) {
               const data = {
                 id: doc.id,
-                title: doc.data().title,
-                categories: doc.data().categories,
-                description: doc.data().description,
-                help: doc.data().help,
-                authorName: doc.data().authorName,
-                isFeatured: doc.data().isFeatured,
-                isApproved: doc.data().isApproved,
-                updated_on: doc.data().updated_on,
-                userId: doc.data().userId,
-                mentorStatus: doc.data().mentorStatus,
+                ...doc.data(),
               };
               logs.push(data);
             }
@@ -75,76 +67,65 @@ const UserProfile = () => {
     }
   }, [currentUser]);
 
-
-
   useEffect(() => {
     if (currentUser && currentUser.userId) {
-      db.collection('Quotes')
+      db.collection('Research Papers')
         .get()
         .then((snapshot) => {
-          const quotes = [];
+          const logs = [];
           snapshot.forEach((doc) => {
             if (doc.data().userId === currentUser.userId) {
               const data = {
                 id: doc.id,
-                title: doc.data().title,
-                description: doc.data().description,
-                authorName: doc.data().authorName,
-                isFeatured: doc.data().isFeatured,
-                isApproved: doc.data().isApproved,
-                updated_on: doc.data().updated_on,
+                ...doc.data(),
               };
-              quotes.push(data);
+              logs.push(data);
             }
           });
-          setUserQuotes(quotes);
+          setUserPapers(logs);
         });
     }
   }, [currentUser]);
 
-  // useEffect(() => {
-  //   if (currentUser && currentUser.userId) {
-  //     db.collection('Mentors')
-  //       .get()
-  //       .then((snapshot) => {
-  //         const mentore = [];
-  //         snapshot.forEach((doc) => {
-  //           if (doc.data().userId === currentUser.userId) {
-  //             const data = {
-  //               id: doc.id,
-  //               title: doc.data().title,
-  //               description: doc.data().description,
-  //               authorName: doc.data().authorName,
-  //               isFeatured: doc.data().isFeatured,
-  //               isApproved: doc.data().isApproved,
-  //               updated_on: doc.data().updated_on,
-  //             };
-  //             mentore.push(data);
-  //           }
-  //         });
-  //         setUserQuotes(mentore);
-  //       });
-  //   }
-  // }, [currentUser]);
+  const addResearchPaper = async (e) => {
 
-
-
-  const addQuote = async (e) => {
     e.preventDefault();
     setShowProgress(true);
     setDone(55);
     try {
-      const data = {
+      const firebaseData = {
+        title: PaperTitle.current.value,
         authorName: currentUser.username,
         isFeatured: false,
         isApproved: false,
-        description: quoteContent,
-        updated_on: new Date().toString(),
+        abstract: paperAbstract,
+        addedOn: new Date().toString(),
         userId: currentUser.userId,
       };
-      await db.collection('Quotes').add(data);
+
+      const data = new FormData();
+      data.append('file', paperImg);
+      data.append('upload_preset', 'research_paper');
+      data.append('cloud_name', 'cloudyyyy');
+      await fetch(
+        'https://api.cloudinary.com/v1_1/cloudyyyy/image/upload',
+        {
+          method: 'post',
+          body: data,
+        }
+      )
+        .then((res) => res.json())
+        .then(async (data) => {
+          var doc = db.collection('Research Papers').doc();
+          await db.collection('Research Papers').doc(doc.id).set({
+            ...firebaseData,
+            paperId: doc.id,
+            fileURL: data.url
+          });
+        });
+
       setDone(100);
-      setUserQuotes([data, ...userQuotes]);
+      setUserPapers([firebaseData, ...userPapers]);
       setSuccess(true);
       setError(false);
       setTimeout(() => {
@@ -256,10 +237,11 @@ const UserProfile = () => {
     setUsercollabs(usercollabs.filter((collab) => collab.id !== id));
   };
 
-
-  const removeQuote = (id) => {
-    setUserQuotes(userQuotes.filter((quote) => quote.id !== id));
+  const removePaper = (id) => {
+    setUsercollabs(userPapers.filter((paper) => paper.id !== id));
   };
+
+
 
   return (
     <div style={{ height: '100vh', width: '100vw' }}>
@@ -317,7 +299,6 @@ const UserProfile = () => {
                                   setShowcollabForm(false);
                                 } else {
                                   setShowcollabForm(true);
-                                  setShowQuoteForm(false);
                                 }
                               }}
                             />
@@ -379,17 +360,16 @@ const UserProfile = () => {
                               fontSize={20}
                               color="green"
                               onClick={() => {
-                                if (showQuoteForm) {
-                                  setShowQuoteForm(false);
+                                if (showPaperForm) {
+                                  setShowPaperForm(false);
                                 } else {
-                                  setShowQuoteForm(true);
-                                  setShowcollabForm(false);
+                                  setShowPaperForm(true);
                                 }
                               }}
                             />
                           </div>
                         </h6>{' '}
-                        <span>{userQuotes.length}</span>
+                        <span className="fs-5">{userPapers.length}</span>
                       </div>
                     </div>
                   </div>
@@ -398,7 +378,7 @@ const UserProfile = () => {
 
               <br />
               <br />
-              <div className="container d-flex flex-column justify-content-center">
+              <div className="container d-flex flex-row justify-content-center">
                 {currentUser.isAdmin && (
                   <>
                     <button
@@ -426,6 +406,7 @@ const UserProfile = () => {
               <div>
                 {showcollabForm && (
                   <form onSubmit={addcollab}>
+                    <h3 className="mt-5">Make a Collaboration Request</h3>
                     {success && (
                       <div class="alert alert-success" role="alert">
                         Success! , your collab request will be posted once the admin
@@ -454,7 +435,7 @@ const UserProfile = () => {
                         class="form-control"
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
-                        placeholder="title"
+                        placeholder="Title"
                         ref={collabTitle}
                         style={{
                           borderStyle: 'none',
@@ -470,7 +451,7 @@ const UserProfile = () => {
                         class="form-control"
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
-                        placeholder="categories"
+                        placeholder="Categories"
                         ref={collabCategories}
                         style={{
                           borderStyle: 'none',
@@ -486,7 +467,7 @@ const UserProfile = () => {
                         class="form-control"
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
-                        placeholder="social media links"
+                        placeholder="Social media links"
                         ref={collabSocialLink}
                         style={{
                           borderStyle: 'none',
@@ -503,7 +484,7 @@ const UserProfile = () => {
                         class="form-control"
                         id="exampleInputEmail1"
                         aria-describedby="emailHelp"
-                        placeholder="enter the status"
+                        placeholder="Enter the status"
                         ref={status}
                         style={{
                           borderStyle: 'none',
@@ -550,6 +531,7 @@ const UserProfile = () => {
 
                 {showMentorForm && (
                   <form onSubmit={addMentor}>
+                    <h3 className="mt-5">Apply for being a Mentor</h3>
                     {success && (
                       <div class="alert alert-success" role="alert">
                         Success! , your will be listed as mentor once the admin
@@ -658,13 +640,108 @@ const UserProfile = () => {
                   </form>
                 )}
 
+
+                {showPaperForm && (
+
+                  <form onSubmit={addResearchPaper}>
+                    <h3 className="mt-5">Research Paper Upload</h3>
+                    {success && (
+                      <div class="alert alert-success" role="alert">
+                        Success! , your will be listed as mentor once the admin
+                        approves.
+                      </div>
+                    )}
+                    {error && (
+                      <div class="alert alert-error" role="alert">
+                        opps something went wrong!
+                      </div>
+                    )}
+                    {showProgress && (
+                      <div className="d-flex">
+                        <Line
+                          percent={done}
+                          strokeWidth="2"
+                          strokeColor="green"
+                        />
+                        <span>{done}%</span>
+                      </div>
+                    )}
+
+                    <div class="form-group">
+                      <br />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="exampleInputEmail1"
+                        aria-describedby="emailHelp"
+                        placeholder="Research Paper Title"
+                        ref={PaperTitle}
+                        style={{
+                          borderStyle: 'none',
+                          borderRadius: '0px',
+                          borderBottom: '1px solid grey',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label for="exampleInputEmail1"></label>
+                      <p>Upload your Research Paper</p>
+                      <input
+                        className="p-3"
+                        type="file"
+                        onChange={(e) => setPaperImg(e.target.files[0])}
+                      />{' '}
+                      {proof && (
+                        <img
+                          style={{ height: '120px' }}
+                          src={URL.createObjectURL(proof)}
+                          alt="error"
+                        />
+                      )}
+                    </div>
+                    <div class="form-group">
+                      <br />
+                      <ReactQuill
+                        type="text"
+                        class="form-control"
+                        id="exampleInputPassword1"
+                        placeholder="Abstract of your Research Paper"
+                        style={{ height: '207px' }}
+                        value={paperAbstract}
+                        onChange={(value) => setPaperAbstract(value)}
+                      />
+                    </div>
+                    <div class="form-group">
+                      <br />
+                      {/* <ReactQuill
+                        type="text"
+                        class="form-control"
+                        id="exampleInputPassword1"
+                        placeholder="blog"
+                        style={{ height: '207px' }}
+                        value={blogContent}
+                        onChange={(value) => setBlogContent(value)}
+                      /> */}
+                    </div>
+
+                    <button
+                      type="submit"
+                      class="btn btn-secondary mt-5"
+                      style={{ fontFamily: 'Dancing Script' }}
+                    >
+                      Submit
+                    </button>
+                  </form>
+                )}
+
+
               </div>
             </div>
           )}
         </div>
         <div className="pt-5">
           <div className="container d-flex justify-content-center p-4">
-            <h2 style={{ fontFamily: 'Dancing Script' }}>My Collab Req</h2>
+            <h2 style={{ fontFamily: 'Dancing Script' }}>My Collab Requests</h2>
           </div>
           <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
             {usercollabs.length > 0 ? (
@@ -700,42 +777,28 @@ const UserProfile = () => {
             <h2 style={{ fontFamily: 'Dancing Script' }}>My Research Papers</h2>
           </div>
           <div className="container d-flex flex-direction-row flex-wrap justify-content-center my-3">
-            {userQuotes.length > 0 ? (
-              userQuotes.map(
-                ({
-                  img,
-                  description,
-                  title,
-                  updated_on,
-                  id,
-                  authorName,
-                  isApproved,
-                  isFeatured,
-                  userId
-                }) => {
+            {userPapers.length > 0 ? (
+              userPapers.map(
+                ({ abstract, title, authorName, isApproved, isFeatured, addedOn, userId, paperId, fileURL }) => {
                   return (
-                    <Card
-                      img={img}
-                      id={id}
-                      content={description}
+                    <ResearchPaperCard
+                      content={abstract}
                       title={title}
-                      date={updated_on}
-                      url={`/quotes/${id}`}
                       author={authorName}
+                      date={addedOn}
                       isApproved={isApproved}
                       isFeatured={isFeatured}
+                      url={fileURL}
                       deleteOption={true}
-                      collection={'Quotes'}
                       userId={userId}
-                      removeData={(id) => removeQuote(id)}
+                      id={userId}
+                      removeData={(id) => removePaper(id)}
                     />
                   );
                 }
               )
             ) : (
-              <div className="d-flex justify-content-center pb-5">
-                No posts yet
-              </div>
+              <div className="d-flex justify-content-center">No posts yet</div>
             )}
           </div>
         </div>
