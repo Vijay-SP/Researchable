@@ -13,11 +13,12 @@ export const AuthProvider = ({ children }) => {
 
   const SignUp = (username, email, password) => {
     return auth.createUserWithEmailAndPassword(email, password).then((data) => {
-      db.collection('users').add({
+      db.collection('users').doc(data.user.uid).set({
         id: data.user.uid,
         username,
         email,
         password,
+        mentorStatus : "Not Applied"
       });
     });
   };
@@ -45,9 +46,7 @@ export const AuthProvider = ({ children }) => {
               const data = {
                 userId: doc.id,
                 id: doc.data().id,
-                username: doc.data().username,
-                email: doc.data().email,
-                isAdmin: doc.data().isAdmin,
+                ...doc.data(),
               };
               if (data.id === String(user.uid)) {
                 cuser.push(data);

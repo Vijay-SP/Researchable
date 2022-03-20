@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 import 'react-quill/dist/quill.snow.css';
 import './UserProfile.css';
 import { Line } from 'rc-progress';
-
+import { useHistory } from "react-router-dom";
 
 const EditProfile = () => {
 
@@ -17,6 +17,7 @@ const EditProfile = () => {
     const [profileImg, setprofileImg] = useState();
     const userdescrip = useRef();
     const userSocialLink = useRef();
+    let history = useHistory();
 
 
     const updateProfile = async (e) => {
@@ -67,6 +68,8 @@ const EditProfile = () => {
                     setShowProgress(false);
                     setDone(0);
                 }, 3000);
+
+                history.goBack();
             }
         } catch (error) {
             setError(true);

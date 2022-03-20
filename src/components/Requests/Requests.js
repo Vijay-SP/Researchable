@@ -1,10 +1,9 @@
 import React from 'react';
 import './Comments.css';
-
-import { format } from 'timeago.js';
 import { Link } from 'react-router-dom';
+import { format } from 'timeago.js';
 
-const Requests = ({ reqs, deleteComment, currentUser }) => {
+const Requests = ({ comments, deleteComment, currentUser }) => {
   return (
     <div className="mb-5" style={{ border: '0' }}>
       <div className="comments  py-4">
@@ -18,12 +17,12 @@ const Requests = ({ reqs, deleteComment, currentUser }) => {
             color: '#222',
           }}
         >
-          All Collaboration requests
+          TOP COMMENTS
         </p>
 
         <div className="d-flex flex-row flex-wrap">
           {/* single comment 1 */}
-          {reqs.map((comment) => (
+          {comments.map((comment) => (
             <div className="col-lg-6 col-md-6 col-sm-12 pb-3">
               <div className="d-flex flex-row single-post flex-wrap col-12">
                 <div className="px-3 col-lg-12 col-md-12 col-sm-12">

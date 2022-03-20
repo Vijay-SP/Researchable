@@ -64,7 +64,8 @@ const UserProfile = () => {
                 isFeatured: doc.data().isFeatured,
                 isApproved: doc.data().isApproved,
                 updated_on: doc.data().updated_on,
-                userId: doc.data().userId
+                userId: doc.data().userId,
+                mentorStatus: doc.data().mentorStatus,
               };
               logs.push(data);
             }
@@ -101,30 +102,30 @@ const UserProfile = () => {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    if (currentUser && currentUser.userId) {
-      db.collection('Mentors')
-        .get()
-        .then((snapshot) => {
-          const mentore = [];
-          snapshot.forEach((doc) => {
-            if (doc.data().userId === currentUser.userId) {
-              const data = {
-                id: doc.id,
-                title: doc.data().title,
-                description: doc.data().description,
-                authorName: doc.data().authorName,
-                isFeatured: doc.data().isFeatured,
-                isApproved: doc.data().isApproved,
-                updated_on: doc.data().updated_on,
-              };
-              mentore.push(data);
-            }
-          });
-          setUserQuotes(mentore);
-        });
-    }
-  }, [currentUser]);
+  // useEffect(() => {
+  //   if (currentUser && currentUser.userId) {
+  //     db.collection('Mentors')
+  //       .get()
+  //       .then((snapshot) => {
+  //         const mentore = [];
+  //         snapshot.forEach((doc) => {
+  //           if (doc.data().userId === currentUser.userId) {
+  //             const data = {
+  //               id: doc.id,
+  //               title: doc.data().title,
+  //               description: doc.data().description,
+  //               authorName: doc.data().authorName,
+  //               isFeatured: doc.data().isFeatured,
+  //               isApproved: doc.data().isApproved,
+  //               updated_on: doc.data().updated_on,
+  //             };
+  //             mentore.push(data);
+  //           }
+  //         });
+  //         setUserQuotes(mentore);
+  //       });
+  //   }
+  // }, [currentUser]);
 
 
 
@@ -197,6 +198,58 @@ const UserProfile = () => {
     }
   };
 
+
+  const addMentor = async (e) => {
+    e.preventDefault();
+    setShowProgress(true);
+    setDone(55);
+    try {
+      const data = new FormData();
+      data.append('file', proof);
+      data.append('upload_preset', 'collab_req');
+      data.append('cloud_name', 'cloudyyyy');
+      await fetch(
+        'https://api.cloudinary.com/v1_1/cloudyyyy/image/upload',
+        {
+          method: 'post',
+          body: data,
+        }
+      )
+        .then((res) => res.json())
+        .then(async (data) => {
+          const firebaseData = {
+            mentorName: currentUser.username,
+            isApproved: false,
+            qualification: MQualification.current.value,
+            expertise: MExpertise.current.value,
+            socialLinks: blogSocialLink.current.value,
+            requstedAt: new Date().toString(),
+            userId: currentUser.userId,
+            image: data.url,
+          };
+          await db.collection('Mentors').doc(currentUser.userId).set(firebaseData);
+          await db.collection('users').doc(currentUser.userId).update({
+            mentorStatus: "Under Approval",
+          });
+        });
+
+      setShowMentorForm(false);
+      setDone(100);
+      setSuccess(true);
+      setError(false);
+      setTimeout(() => {
+        setSuccess(false);
+        setShowProgress(false);
+        setDone(0);
+      }, 3000);
+    } catch (error) {
+      setError(true);
+      setSuccess(false);
+      setTimeout(() => {
+        setError(false);
+      }, 3000);
+    }
+  };
 
 
   const removecollab = (id) => {
@@ -283,21 +336,26 @@ const UserProfile = () => {
                             marginLeft: '22px',
                           }}
                         >
-                          Register As Mentor.
-                          <div>
-                            <PlusCircle
-                              fontSize={20}
-                              color="green"
-                              onClick={() => {
-                                if (showMentorForm) {
-                                  setShowMentorForm(false);
-                                } else {
-                                  setShowMentorForm(true);
-                                  setShowMentorForm(false);
-                                }
-                              }}
-                            />
-                          </div>
+                          Mentor Status <br />
+                          {currentUser.mentorStatus === "Not Applied" ?
+                            <>
+                              Apply as Mentor
+                              <div>
+                                <PlusCircle
+                                  fontSize={20}
+                                  color="green"
+                                  onClick={() => {
+                                    if (showMentorForm) {
+                                      setShowMentorForm(false);
+                                    } else {
+                                      setShowMentorForm(true);
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </>
+                            : currentUser.mentorStatus
+                          }
                         </h6>{' '}
 
                       </div>
@@ -491,7 +549,7 @@ const UserProfile = () => {
                 )}
 
                 {showMentorForm && (
-                  <form>
+                  <form onSubmit={addMentor}>
                     {success && (
                       <div class="alert alert-success" role="alert">
                         Success! , your will be listed as mentor once the admin
@@ -540,7 +598,7 @@ const UserProfile = () => {
                       {proof && (
                         <img
                           style={{ height: '120px' }}
-                          src={URL.createObjectURL(blogImg)}
+                          src={URL.createObjectURL(proof)}
                           alt="error"
                         />
                       )}
@@ -600,51 +658,6 @@ const UserProfile = () => {
                   </form>
                 )}
 
-                {showQuoteForm && (
-                  <form onSubmit={addQuote}>
-                    {success && (
-                      <div class="alert alert-success" role="alert">
-                        Success! , your quote will be posted once the admin
-                        approves it
-                      </div>
-                    )}
-                    {error && (
-                      <div class="alert alert-error" role="alert">
-                        Opps something went wrong!
-                      </div>
-                    )}
-                    {showProgress && (
-                      <div className="d-flex">
-                        <Line
-                          percent={done}
-                          strokeWidth="2"
-                          strokeColor="green"
-                        />
-                        <span>{done}%</span>
-                      </div>
-                    )}
-                    <label htmlFor="">Research Paper Content</label>
-                    <div class="form-group">
-                      <ReactQuill
-                        type="text"
-                        class="form-control"
-                        id="exampleInputPassword1"
-                        placeholder="Quote"
-                        style={{ height: '207px' }}
-                        value={quoteContent}
-                        onChange={(value) => setQuoteContent(value)}
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      class="btn btn-secondary mt-5"
-                      style={{ fontFamily: 'Dancing Script' }}
-                    >
-                      Submit
-                    </button>
-                  </form>
-                )}
               </div>
             </div>
           )}

@@ -18,6 +18,7 @@ const Card = ({
   removeData,
   isFeatured,
   userId,
+  isMentor
 }) => {
   const deletePost = async () => {
     try {
@@ -67,12 +68,17 @@ const Card = ({
             <Link to={`/user/${userId}`}>{author}</Link>
           </p>
           <Link to={url} className="py-0 text-decoration-none">
-            Read more
+            Actions
           </Link>
         </div>
         <div className="d-flex justify-content-between">
           {!isApproved && <p className="text-danger"> Awaiting approval</p>}
-          {isFeatured === true ? (<p className="text-success">Featured</p>) : (<p className="text-danger"> Not Featured</p>)}
+
+          {!isMentor ?
+            isFeatured === true ? (<p className="text-success">Featured</p>) : (<p className="text-danger"> Not Featured</p>)
+            : 
+            null
+          }
           {deleteOption && (
             <Trash onClick={deletePost} fontSize={25} color="red" />
           )}

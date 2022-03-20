@@ -119,11 +119,11 @@ const CollabApprovals = () => {
               )}
               <header className="mb-4">
                 <h1 className="fw-bolder mb-1">{collab.title}</h1>
-                <button className="btn btn-success" onClick={handleApprove}>
+                <button className="btn btn-success ms-3" onClick={handleApprove}>
                   Approve
                 </button>
 
-                <button className="btn btn-danger" onClick={handleNotApprove}>
+                <button className="btn btn-danger ms-3" onClick={handleNotApprove}>
                   Disapprove
                 </button>
                 <button className="btn btn-success ms-3" onClick={handleFeatured}>

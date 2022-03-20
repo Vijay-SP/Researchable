@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './pages/HomePage';
 import { Route, Switch } from 'react-router-dom';
 import CollabPage from './pages/CollabPage';
-import QuotePage from './pages/QuotePage';
 import { AnimatePresence } from 'framer-motion';
 import Quotes from './pages/Quotes';
 import Blog from './pages/Collab';
@@ -23,6 +22,8 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import Reports from './pages/Reports';
 import UserCollab from './pages/UserCollab';
+import MentorApproval from './pages/approvals/MentorApprove';
+import MentorPage from './pages/MentorPage';
 
 const App = () => {
   const { currentUser } = useAuth();
@@ -33,7 +34,7 @@ const App = () => {
         <Route path="/collabs/:id" component={Blog} />
         <Route path="/collabsuser/:id" component={UserCollab} />
         <Route path="/quotes/:id" component={Quotes} />
-        <Route path="/quotes" component={QuotePage} />
+        <Route path="/mentors" component={MentorPage} />
         <Route path="/collabs" component={CollabPage} />
         <Route path="/resetpassword" component={ForgetPassword} />
         <Route path="/signup" component={SignUp} />
@@ -42,7 +43,7 @@ const App = () => {
         <Route exact path="/" component={HomePage} />
         <Route path="/user/:id" component={Profile} />
         <Route path="/approvals/collabs/:id" component={CollabApprovals} />
-        <Route path="/approvals/quotes/:id" component={QuoteApprovals} />
+        <Route path="/approvals/mentor/:id" component={MentorApproval} />
 
         <ProtectedRoute
           path="/approvals"

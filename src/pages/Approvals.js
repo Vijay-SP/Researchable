@@ -6,6 +6,7 @@ import Card from '../components/Blogs/Card';
 
 const Approvals = () => {
   const [collabApprovals, setCollabApprovals] = useState([]);
+  const [mentorApprovals, setMentorApprovals] = useState([]);
   const [quoteApprovals, setQuoteApprovals] = useState([]);
 
 
@@ -33,6 +34,29 @@ const Approvals = () => {
       });
   }, []);
 
+  useEffect(() => {
+    db.collection('Mentors')
+      .get()
+      .then((snapshot) => {
+        const mentors = [];
+        snapshot.forEach((doc) => {
+          // if (doc.data().isApproved === false || doc.data().isFeatured === false || doc.data().isFeatured === true) {
+            const data = {
+              id: doc.id,
+              mentorName: doc.data().mentorName,
+              isApproved: doc.data().isApproved,
+              expertise: doc.data().expertise,
+              socialLinks: doc.data().socialLinks,
+              requstedAt: doc.data().requstedAt,
+              userId: doc.data().userId,
+              image: doc.data().image,
+            };
+            mentors.push(data);
+          // }
+        });
+        setMentorApprovals(mentors);
+      });
+  }, []);
 
   useEffect(() => {
     db.collection('Quotes')
@@ -114,48 +138,57 @@ const Approvals = () => {
           </div>
         )}
 
-
-        {quoteApprovals.length > 0 && (
-          <div
-            className="d-flex flex-column align-items-center justify-content-center py-5"
-            style={{ width: '100vw', backgroundColor: 'white' }}
-          >
-            <h2
-              className="pt-3 text-dark text-capitalize font-weight-bold fs-1 p-0 m-0 "
-              style={{
-                paddingLeft: '20px',
-                fontFamily: 'Dancing Script',
-                borderBottom: '2px solid #222',
-                paddingBottom: '1px',
-              }}
-            >
-              approve quotes
-            </h2>
-
+        {mentorApprovals.length > 0 && (
+          <div style={{ zIndex: '2' }}>
             <div
-              className="container d-flex flex-direction-row flex-wrap justify-content-center my-5"
-              style={{ width: '100vw' }}
+              className="d-flex flex-column align-items-center justify-content-center py-5"
+              style={{ width: '100vw', backgroundColor: 'white' }}
             >
-              {quoteApprovals.map(
-                ({ img, description, title, updated_on, id, authorName, isApproved, isFeatured, userId }) => {
-                  return (
-                    <Card
-                      img={img}
-                      content={description}
-                      title={title}
-                      date={updated_on}
-                      url={`/approvals/quotes/${id}`}
-                      author={authorName}
-                      isApproved={isApproved}
-                      isFeatured={isFeatured}
-                      userId={userId}
-                    />
-                  );
-                }
-              )}
+              <h2
+                className="pt-3 text-dark text-capitalize font-weight-bold fs-1 p-0 m-0 "
+                style={{
+                  paddingLeft: '20px',
+                  fontFamily: 'Dancing Script',
+                  borderBottom: '2px solid #222',
+                  paddingBottom: '1px',
+                }}
+              >
+                Approve Mentors
+              </h2>
+
+              <div
+                className="container d-flex flex-direction-row flex-wrap justify-content-center my-5"
+                style={{ width: '100vw' }}
+              >
+                {mentorApprovals.map(
+                  ({
+                    expertise,
+                    mentorName,
+                    qualification,
+                    requstedAt,
+                    socialLinks,
+                    isApproved,
+                    userId
+                  }) => {
+                    return (
+                      <Card
+                        content={expertise}
+                        title={mentorName}
+                        date={requstedAt}
+                        url={`/approvals/mentor/${userId}`}
+                        author={qualification}
+                        isApproved={isApproved}
+                        userId={userId}
+                        isMentor={true}
+                      />
+                    );
+                  }
+                )}
+              </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

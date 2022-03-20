@@ -65,7 +65,7 @@ const Navbar = ({ backButton }) => {
                 </Link>
               </li>
               <li class="navbar-brand">
-                <Link class="nav-link" to="/quotes">
+                <Link class="nav-link" to="/mentors">
                   Mentors
                 </Link>
               </li>

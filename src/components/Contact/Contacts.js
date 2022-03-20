@@ -56,7 +56,7 @@ const Contact1 = () => {
                 <div class="email details">
                   <i class="fas fa-envelope"></i>
                   <div class="topic">Email</div>
-                  <div class="text-two"><a href="mailto:writersworldofficial@gmail.com" style={{ textDecoration: "none" }}>writersworldofficial@gmail.com</a></div>
+                  <div class="text-two"><a href="mailto:research.web@gmail.com" style={{ textDecoration: "none" }}>research.web@gmail.com</a></div>
                 </div>
               </div>
               <div class="right-side">
